@@ -14,13 +14,13 @@
     "react",
     "nextjs"
   ],
-  "homepage": "https://github.com/straiforos/mimir#readme",
+  "homepage": "https://github.com/straiforos/eslint-supabase-client-package#readme",
   "bugs": {
-    "url": "https://github.com/straiforos/mimir/issues"
+    "url": "https://github.com/straiforos/eslint-supabase-client-package/issues"
   },
   "repository": {
     "type": "module",
-    "url": "git+https://github.com/straiforos/mimir.git",
+    "url": "git+https://github.com/straiforos/eslint-supabase-client-package.git",
     "directory": "packages/eslint-plugin-supabase-services-layer"
   },
   "license": "MIT",
