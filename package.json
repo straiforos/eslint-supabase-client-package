@@ -1,0 +1,67 @@
+{
+  "name": "eslint-plugin-supabase-services-layer",
+  "version": "1.0.0",
+  "description": "ESLint plugin to enforce services layer architecture pattern in Supabase projects by restricting direct Supabase client imports to configured service directories",
+  "keywords": [
+    "eslint",
+    "eslint-plugin",
+    "supabase",
+    "services-layer",
+    "architecture",
+    "layered-architecture",
+    "code-organization",
+    "database",
+    "react",
+    "nextjs"
+  ],
+  "homepage": "https://github.com/straiforos/mimir#readme",
+  "bugs": {
+    "url": "https://github.com/straiforos/mimir/issues"
+  },
+  "repository": {
+    "type": "module",
+    "url": "git+https://github.com/straiforos/mimir.git",
+    "directory": "packages/eslint-plugin-supabase-services-layer"
+  },
+  "license": "MIT",
+  "author": "Stephentraiforos",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint . --config ../../eslint.config.cjs",
+    "prepublishOnly": "pnpm build && pnpm test"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  },
+  "dependencies": {
+    "minimatch": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/minimatch": "^5.1.2",
+    "@typescript-eslint/parser": "^8.55.0",
+    "@typescript-eslint/rule-tester": "^8.55.0",
+    "typescript": "^5",
+    "vitest": "^4.0.14"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
