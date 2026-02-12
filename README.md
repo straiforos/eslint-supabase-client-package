@@ -2,6 +2,8 @@
 
 ESLint plugin to enforce services layer architecture pattern in Supabase projects by restricting direct Supabase client imports to configured service directories.
 
+> Warning this is very alpha, sharing this on github for friends to use while I integrate it into my existing domain service architecture supabase application
+
 ## Why This Plugin?
 
 In Supabase projects using Next.js (or other frameworks), it's a best practice to encapsulate database access and business logic in a services layer. This plugin enforces that pattern by preventing direct imports of Supabase clients outside of designated service directories.
