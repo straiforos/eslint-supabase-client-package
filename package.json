@@ -46,7 +46,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint . --config ../../eslint.config.mjs",
+    "lint": "eslint .",
     "prepublishOnly": "pnpm build && pnpm test"
   },
   "peerDependencies": {
