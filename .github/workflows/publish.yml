@@ -1,0 +1,165 @@
+name: Publish to NPM
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  packages: write
+  statuses: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set commit status to pending
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'pending',
+              context: 'npm-publish',
+              description: 'Publishing workflow in progress'
+            })
+
+      - name: Checkout code
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+
+      - name: Setup pnpm
+        id: setup-pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Get pnpm store directory
+        id: pnpm-store
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        id: pnpm-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        id: install
+        run: |
+          echo "::group::Installing dependencies"
+          pnpm install --frozen-lockfile
+          echo "::endgroup::"
+          echo "✅ Dependencies installed successfully"
+
+      - name: Build package
+        id: build
+        run: |
+          echo "::group::Building package"
+          pnpm build
+          echo "::endgroup::"
+          echo "✅ Build completed successfully"
+          if [ ! -d "dist" ]; then
+            echo "::error::Build failed - dist directory not found"
+            exit 1
+          fi
+
+      - name: Run tests
+        id: test
+        run: |
+          echo "::group::Running tests"
+          pnpm test
+          echo "::endgroup::"
+          echo "✅ All tests passed"
+
+      - name: Configure Git
+        id: git-config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo "✅ Git configured for automated commits"
+
+      - name: Release with semantic-release
+        id: semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "::group::Running semantic-release"
+          if [ -z "$NPM_TOKEN" ]; then
+            echo "::error::NPM_TOKEN secret is not configured"
+            exit 1
+          fi
+          npx semantic-release
+          echo "::endgroup::"
+          echo "✅ Release completed successfully"
+
+      - name: Set commit status to success
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'success',
+              context: 'npm-publish',
+              description: 'Package published successfully'
+            })
+
+      - name: Set commit status to failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const failedStep = '${{ steps.checkout.outcome }}' === 'failure' ? 'checkout' :
+                              '${{ steps.setup-node.outcome }}' === 'failure' ? 'setup-node' :
+                              '${{ steps.setup-pnpm.outcome }}' === 'failure' ? 'setup-pnpm' :
+                              '${{ steps.install.outcome }}' === 'failure' ? 'install' :
+                              '${{ steps.build.outcome }}' === 'failure' ? 'build' :
+                              '${{ steps.test.outcome }}' === 'failure' ? 'test' :
+                              '${{ steps.git-config.outcome }}' === 'failure' ? 'git-config' :
+                              '${{ steps.semantic-release.outcome }}' === 'failure' ? 'semantic-release' :
+                              'unknown';
+            
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'failure',
+              context: 'npm-publish',
+              description: `Workflow failed at step: ${failedStep}`
+            })
+
+      - name: Report workflow summary
+        if: always()
+        run: |
+          echo "## Workflow Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Step | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Checkout | ${{ steps.checkout.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Setup Node.js | ${{ steps.setup-node.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Setup pnpm | ${{ steps.setup-pnpm.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Install Dependencies | ${{ steps.install.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ steps.build.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Test | ${{ steps.test.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Git Config | ${{ steps.git-config.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Semantic Release | ${{ steps.semantic-release.outcome }} |" >> $GITHUB_STEP_SUMMARY
