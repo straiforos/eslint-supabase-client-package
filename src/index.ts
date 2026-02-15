@@ -1,4 +1,4 @@
-import noDirectSupabaseImport from './rules/no-direct-supabase-import';
+import noDirectSupabaseImport from './rules/no-direct-supabase-import.js';
 
 /**
  * ESLint plugin to enforce services layer architecture in Supabase projects
@@ -24,4 +24,4 @@ const plugin = {
 export default plugin;
 
 // Export types for TypeScript users
-export type { RuleOptions } from './rules/no-direct-supabase-import';
+export type { RuleOptions } from './rules/no-direct-supabase-import.js';

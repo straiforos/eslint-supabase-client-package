@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-supabase-services-layer",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "ESLint plugin to enforce services layer architecture pattern in Supabase projects by restricting direct Supabase client imports to configured service directories",
   "keywords": [
     "eslint",
@@ -25,6 +25,7 @@
   },
   "license": "MIT",
   "author": "Stephentraiforos",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -45,7 +46,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint . --config ../../eslint.config.cjs",
+    "lint": "eslint .",
     "prepublishOnly": "pnpm build && pnpm test"
   },
   "peerDependencies": {
